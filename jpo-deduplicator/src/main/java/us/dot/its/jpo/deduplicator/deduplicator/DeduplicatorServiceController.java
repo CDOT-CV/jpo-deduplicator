@@ -16,6 +16,7 @@ import us.dot.its.jpo.conflictmonitor.monitor.MonitorServiceController;
 import us.dot.its.jpo.conflictmonitor.monitor.algorithms.StreamsTopology;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.BsmDeduplicatorTopology;
+import us.dot.its.jpo.deduplicator.deduplicator.topologies.FilteredOdeBsmDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.MapDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.TimDeduplicatorTopology;
 import us.dot.its.jpo.deduplicator.deduplicator.topologies.OdeRawEncodedTimDeduplicatorTopology;
@@ -105,6 +106,14 @@ public class DeduplicatorServiceController {
                 logger.info("Starting BSM Deduplicator");
                 BsmDeduplicatorTopology bsmDeduplicatorTopology = new BsmDeduplicatorTopology(props);
                 bsmDeduplicatorTopology.start();
+            }
+
+            if(props.isEnableFilteredOdeBsmDeduplication()){
+                logger.info("Starting Filtered ODE BSM Deduplicator");
+                FilteredOdeBsmDeduplicatorTopology filteredOdeBsmDeduplicatorTopology = new FilteredOdeBsmDeduplicatorTopology(
+                    props
+                );
+                filteredOdeBsmDeduplicatorTopology.start();
             }
 
             if(props.isEnableProcessedBsmDeduplication()){

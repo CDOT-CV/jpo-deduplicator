@@ -47,6 +47,12 @@ odeBsmMaximumTimeDelta: 10000 # Milliseconds
 odeBsmMaximumPositionDelta: 1 # Meter
 odeBsmAlwaysIncludeAtSpeed: 1 # Meter / Second
 
+# Filtered ODE Bsm Json Configuration
+# NOTE: Filtered ODE Bsm Json will use the same configuration variables as the ODE Bsm Json
+kafkaTopicFilteredOdeBsmJson: topic.FilteredOdeBsmJson
+kafkaTopicDeduplicatedFilteredOdeBsmJson: topic.DeduplicatedFilteredOdeBsmJson
+enableFilteredOdeBsmDeduplication: ${ENABLE_FILTERED_ODE_BSM_DEDUPLICATION:true}
+
 # Processed Map Configuration
 kafkaTopicProcessedSpat: topic.ProcessedSpat
 kafkaTopicDeduplicatedProcessedSpat: topic.DeduplicatedProcessedSpat

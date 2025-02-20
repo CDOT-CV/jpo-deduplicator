@@ -93,6 +93,12 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    private double odeBsmAlwaysIncludeAtSpeed;
    private String kafkaStateStoreOdeBsmJsonName = "OdeBsmJson-store";
 
+   // Filtered ODE Bsm Json Configuration
+   private String kafkaTopicFilteredOdeBsmJson;
+   private String kafkaTopicDeduplicatedFilteredOdeBsmJson;
+   private boolean enableFilteredOdeBsmDeduplication;
+   private String kafkaStateStoreFilteredOdeBsmJsonName = "FilteredOdeBsmJson-store";
+
    // Confluent Properties
    private boolean confluentCloudEnabled = false;
    private String confluentKey = null;
@@ -420,6 +426,21 @@ public class DeduplicatorProperties implements EnvironmentAware  {
    @Value("${odeBsmAlwaysIncludeAtSpeed}")
    public void setAlwaysIncludeAtSpeed(double alwaysIncludeAtSpeed) {
       this.odeBsmAlwaysIncludeAtSpeed = alwaysIncludeAtSpeed;
+   }
+
+   @Value("${kafkaTopicFilteredOdeBsmJson}")
+   public void setKafkaTopicFilteredOdeBsmJson(String kafkaTopicFilteredOdeBsmJson) {
+      this.kafkaTopicFilteredOdeBsmJson = kafkaTopicFilteredOdeBsmJson;
+   }
+
+   @Value("${kafkaTopicDeduplicatedFilteredOdeBsmJson}")
+   public void setKafkaTopicDeduplicatedFilteredOdeBsmJson(String kafkaTopicDeduplicatedFilteredOdeBsmJson) {
+      this.kafkaTopicDeduplicatedFilteredOdeBsmJson = kafkaTopicDeduplicatedFilteredOdeBsmJson;
+   }
+
+   @Value("${enableFilteredOdeBsmDeduplication}")
+   public void setEnableFilteredOdeBsmDeduplication(boolean enableFilteredOdeBsmDeduplication) {
+      this.enableFilteredOdeBsmDeduplication = enableFilteredOdeBsmDeduplication;
    }
 
    @Value("${spring.kafka.bootstrap-servers}")
