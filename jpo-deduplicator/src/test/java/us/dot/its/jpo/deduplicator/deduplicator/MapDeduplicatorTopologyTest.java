@@ -45,6 +45,7 @@ public class MapDeduplicatorTopologyTest {
     String inputMap3 = "";
     String inputMap4 = "";
     String inputMap5 = "";
+    String inputMap6 = "";
 
     @Autowired
     DeduplicatorProperties props;
@@ -71,6 +72,7 @@ public class MapDeduplicatorTopologyTest {
         Instant instant = Instant.parse(originalTime);
         Instant newInstant = instant.plus(5, ChronoUnit.MINUTES);
         map5MinutesLater.getMetadata().setOdeReceivedAt(newInstant.toString());
+
         // ASN1 modified to show that this message is a deduplicated irrelevant to it
         map5MinutesLater.getMetadata().setAsn1(map5MinutesLater.getMetadata().getAsn1() + "1");
 
@@ -91,14 +93,31 @@ public class MapDeduplicatorTopologyTest {
                 OdeMessageFrameData.class);
         originalTime = map1HourLater.getMetadata().getOdeReceivedAt();
         instant = Instant.parse(originalTime);
-        newInstant = instant.plus(61, ChronoUnit.HOURS);
+        newInstant = instant.plus(61, ChronoUnit.MINUTES);
         map1HourLater.getMetadata().setOdeReceivedAt(newInstant.toString());
 
         mf = (MapDataMessageFrame) map1HourLater.getPayload().getData();
-        newMoy = new MinuteOfTheYear(mf.getValue().getTimeStamp().getValue() + 60);
+        newMoy = new MinuteOfTheYear(mf.getValue().getTimeStamp().getValue() + 61);
         mf.getValue().setTimeStamp(newMoy);
         map1HourLater.getPayload().setData(mf);
         inputMap5 = map1HourLater.toJson();
+
+        // Message 5 with a slightly different lane geometry. Should be kept as non-duplicate. (Uses same timestamp as message above so that it is not automatically forwarded due to time difference)
+        OdeMessageFrameData mapWithDifferentLaneGeometry = objectMapper.readValue(mapReferenceData.toJson(),
+                OdeMessageFrameData.class);
+        originalTime = mapWithDifferentLaneGeometry.getMetadata().getOdeReceivedAt();
+        instant = Instant.parse(originalTime);
+        newInstant = instant.plus(61, ChronoUnit.MINUTES);
+        mapWithDifferentLaneGeometry.getMetadata().setOdeReceivedAt(newInstant.toString());
+
+        mf = (MapDataMessageFrame) mapWithDifferentLaneGeometry.getPayload().getData();
+        mf.getValue().getIntersections().get(0).getLaneSet().get(0).getLaneID().setValue(42); // Set a different lane ID to make the geometry different
+
+        newMoy = new MinuteOfTheYear(mf.getValue().getTimeStamp().getValue() + 61);
+        mf.getValue().setTimeStamp(newMoy);
+        mapWithDifferentLaneGeometry.getPayload().setData(mf);
+        inputMap6 = mapWithDifferentLaneGeometry.toJson();
+        
     }
 
     @Test
@@ -143,20 +162,23 @@ public class MapDeduplicatorTopologyTest {
             inputOdeMapData.pipeInput(null, inputMap3);
             inputOdeMapData.pipeInput(null, inputMap4);
             inputOdeMapData.pipeInput(null, inputMap5);
+            inputOdeMapData.pipeInput(null, inputMap6);
 
             List<KeyValue<String, OdeMessageFrameData>> mapDeduplicationResults = outputOdeMapData
                     .readKeyValuesToList();
 
             // validate that only 3 messages make it through
-            assertEquals(3, mapDeduplicationResults.size());
+            assertEquals(4, mapDeduplicationResults.size());
 
             OdeMessageFrameData map1 = objectMapper.readValue(inputMap1, OdeMessageFrameData.class);
             OdeMessageFrameData map4 = objectMapper.readValue(inputMap4, OdeMessageFrameData.class);
             OdeMessageFrameData map5 = objectMapper.readValue(inputMap5, OdeMessageFrameData.class);
+            OdeMessageFrameData map6 = objectMapper.readValue(inputMap6, OdeMessageFrameData.class);
 
             assertThat(mapDeduplicationResults.get(0).value.toJson(), jsonEquals(map1.toJson()));
             assertThat(mapDeduplicationResults.get(1).value.toJson(), jsonEquals(map4.toJson()));
             assertThat(mapDeduplicationResults.get(2).value.toJson(), jsonEquals(map5.toJson()));
+            assertThat(mapDeduplicationResults.get(3).value.toJson(), jsonEquals(map6.toJson()));
 
         } catch (JsonMappingException e) {
             e.printStackTrace();
