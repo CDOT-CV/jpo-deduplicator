@@ -43,7 +43,7 @@ public class OdeMapJsonProcessor extends DeduplicationProcessor<OdeMessageFrameD
             boolean lastMessageIsNull = (lastMessage == null || lastMessage.getPayload() == null || lastMessage.getPayload().getData() == null);
             boolean newMessageIsNull = (newMessage == null || newMessage.getPayload() == null || newMessage.getPayload().getData() == null);
             if ((lastMessageIsNull && !newMessageIsNull) || (!lastMessageIsNull && newMessageIsNull)) {
-                logger.warn("One TIM message has a null payload or data, treating as non-duplicate");
+                logger.warn("One MAP message has a null payload or data, treating as non-duplicate");
                 return true;
             }
 
