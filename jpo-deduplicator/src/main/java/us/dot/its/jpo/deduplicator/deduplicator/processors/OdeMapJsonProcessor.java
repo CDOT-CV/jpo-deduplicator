@@ -44,7 +44,7 @@ public class OdeMapJsonProcessor extends DeduplicationProcessor<OdeMessageFrameD
             boolean newMessageIsNull = (newMessage == null || newMessage.getPayload() == null || newMessage.getPayload().getData() == null);
             if ((lastMessageIsNull && !newMessageIsNull) || (!lastMessageIsNull && newMessageIsNull)) {
                 logger.warn("One MAP message has a null payload or data, treating as non-duplicate");
-                return true;
+                return false;
             }
 
             // Hash both messages and see if they match
