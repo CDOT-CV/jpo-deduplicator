@@ -11,8 +11,8 @@ import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,7 +49,7 @@ public class MapDeduplicatorTopologyTest {
     @Autowired
     DeduplicatorProperties props;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         objectMapper = DateJsonMapper.getInstance();
 

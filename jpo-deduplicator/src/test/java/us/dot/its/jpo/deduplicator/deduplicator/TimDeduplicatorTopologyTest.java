@@ -11,12 +11,11 @@ import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.deduplicator.deduplicator.serialization.JsonSerdes;
@@ -27,7 +26,7 @@ import us.dot.its.jpo.ode.model.OdeMessageFrameData;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -46,17 +45,16 @@ public class TimDeduplicatorTopologyTest {
     String inputTim4 = "";
     String inputTim5 = "";
 
-    @Autowired
     DeduplicatorProperties props;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         objectMapper = DateJsonMapper.getInstance();
 
         // Load test files from resources
         // Reference TIM
         String timReference = new String(
-                Files.readAllBytes(Paths.get("src/test/resources/json/ode_tim/sample.ode-tim-reference.json")));
+                Files.readAllBytes(Path.of("src/test/resources/json/ode_tim/sample.ode-tim-reference.json")));
         OdeMessageFrameData timReferenceData = objectMapper.readValue(timReference, OdeMessageFrameData.class);
 
         inputTim1 = timReferenceData.toJson();
@@ -84,7 +82,7 @@ public class TimDeduplicatorTopologyTest {
 
         // A different Message entirely - should be kept
         String timDifferent = new String(
-                Files.readAllBytes(Paths.get("src/test/resources/json/ode_tim/sample.ode-tim-different.json")));
+                Files.readAllBytes(Path.of("src/test/resources/json/ode_tim/sample.ode-tim-different.json")));
         OdeMessageFrameData timDifferentData = objectMapper.readValue(timDifferent, OdeMessageFrameData.class);
         inputTim5 = timDifferentData.toJson();
     }
