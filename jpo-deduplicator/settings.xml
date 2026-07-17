@@ -5,6 +5,16 @@
     </activeProfiles>
     <servers>
         <server>
+            <id>github_ode</id>
+            <username>jpo_deduplicator</username>
+            <password>${env.MAVEN_GITHUB_TOKEN}</password>
+        </server>
+        <server>
+            <id>github_gjc</id>
+            <username>jpo_deduplicator</username>
+            <password>${env.MAVEN_GITHUB_TOKEN}</password>
+        </server>
+        <server>
             <id>github</id>
             <username>jpo_deduplicator</username>
             <password>${env.MAVEN_GITHUB_TOKEN}</password>
@@ -14,9 +24,26 @@
         <profile>
             <id>default</id>
             <repositories>
+                <!-- Specifically named repos work better with Azure devops CI -->
+                <repository>
+                    <id>github_ode</id>
+                    <name>GitHub ODE</name>
+                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/jpo-ode</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github_gjc</id>
+                    <name>GitHub JPO Geojson Converter</name>
+                    <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/jpo-geojsonconverter</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
                 <repository>
                     <id>github</id>
-                    <name>GitHub JPO Conflict Monitor</name>
+                    <name>GitHub</name>
                     <url>https://maven.pkg.github.com/${env.MAVEN_GITHUB_ORG}/*</url>
                     <snapshots>
                         <enabled>false</enabled>
