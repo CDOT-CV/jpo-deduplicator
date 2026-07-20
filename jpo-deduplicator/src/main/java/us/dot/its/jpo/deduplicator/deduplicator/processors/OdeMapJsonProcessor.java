@@ -65,10 +65,7 @@ public class OdeMapJsonProcessor extends DeduplicationProcessor<OdeMessageFrameD
             newMessage.getMetadata().setAsn1(oldMapAsn1);
             newMessage.getMetadata().setOdeReceivedAt(oldMapOdeReceivedAt);
 
-            int oldHash = Objects.hash(lastMessage.toString());
-            int newHash = Objects.hash(newMessage.toString());
-
-            if(oldHash != newHash){
+            if(!lastMessage.toString().equals(newMessage.toString())){
                 newMapMessageFrame.getValue().getTimeStamp().setValue(newMapMoy);
                 newMessage.getMetadata().setAsn1(newMapAsn1);
                 newMessage.getMetadata().setOdeReceivedAt(newMapOdeReceivedAt);
