@@ -167,7 +167,7 @@ public class MapDeduplicatorTopologyTest {
             List<KeyValue<String, OdeMessageFrameData>> mapDeduplicationResults = outputOdeMapData
                     .readKeyValuesToList();
 
-            // validate that only 3 messages make it through
+            // validate that only 4 messages make it through
             assertEquals(4, mapDeduplicationResults.size());
 
             OdeMessageFrameData map1 = objectMapper.readValue(inputMap1, OdeMessageFrameData.class);
