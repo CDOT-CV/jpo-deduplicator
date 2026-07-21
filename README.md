@@ -26,10 +26,11 @@ The processes that determine which messages are duplicates are unique and custom
 ### OdeMapJson
 - Two messages within a 1 hour time window 
 - Two messages have the same intersection ID
+- The Messages have the same hash values after remove the `ASN1`, `OdeReceivedAt` and  `MOY` fields
 
 ### ProcessedMap and ProcessedMapWKT
 - Two messages within a 1 hour time window
-- Two messages have the same hash values after factoring out the odeReceivedAt and timeStamp fields
+- Two messages are the same after factoring out the `ASN1`, `odeReceivedAt` and `timeStamp` fields
 
 ### OdeTimJson
 - Two messages within a 1 hour time window
