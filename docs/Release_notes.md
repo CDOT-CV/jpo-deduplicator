@@ -1,8 +1,16 @@
-JPO-Deduplicator Release Notes
-Version 3.0.1
+# JPO-Deduplicator Release Notes
+
+## Version 3.1.0
+The 2026-Q2 release of the jpo-deduplicator package
+- [Hash ODE Map JSON Deduplication](https://github.com/CDOT-CV/jpo-deduplicator/pull/11)
+- [BSM White List](https://github.com/neaeraconsulting/jpo-deduplicator/pull/1)
+- [Adding Additional Protections Against Null or Mal-Formatted Records](https://github.com/neaeraconsulting/jpo-deduplicator/pull/2)
+- [Exception Handlers](https://github.com/neaeraconsulting/jpo-deduplicator/pull/4)
+
+## Version 3.0.1
 Hotfix to address "DockerHub Build and Push" GitHub action not triggering.
 
-Version 3.0.0
+## Version 3.0.0
 The 2025-Q3 release of the jpo-deduplicator package
 - Updated Deduplicator to handle the new Processed Message Types
 - Added OdeMapJson Unit tests
@@ -11,7 +19,7 @@ The 2025-Q3 release of the jpo-deduplicator package
 - Updated Deduplication Rules 
 
 
-Version 2.1.0
+## Version 2.1.0
 Summary
 The second release of the jpo-deduplicator package. This release makes minor updates to how the deduplicator handles invalid messages. 
 - Add error handling to all message topologies to prevent bad messages from crashing individual topologies
@@ -20,7 +28,7 @@ The second release of the jpo-deduplicator package. This release makes minor upd
 - Removes Conflict Monitor as a dependency
 
 
-Version 2.0.0
+## Version 2.0.0
 Summary
 The first release of the jpo-deduplicator package. This package focuses on removing duplicate messages from Kafka topics. This in turns saves deployers costs associated with data transfer and storage within the ODE ecosystem. This initial release included deduplication for the following messages types
  - ProcessedMap
