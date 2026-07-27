@@ -19,7 +19,7 @@ RUN mvn -s settings.xml dependency:resolve
 COPY ./jpo-deduplicator/src ./src
 RUN mvn -s settings.xml install -DskipTests
 
-FROM amazoncorretto:21
+FROM amazoncorretto:21-al2
 
 WORKDIR /home
 
