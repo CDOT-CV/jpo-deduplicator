@@ -191,7 +191,6 @@ public class DeduplicatorProperties implements EnvironmentAware {
 
       streamProps.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 2);
 
-      // streamProps.put(StreamsConfig.producerPrefix("acks"), "all");
       streamProps.put(StreamsConfig.producerPrefix(ProducerConfig.ACKS_CONFIG), "all");
 
       // Reduce cache buffering per topology to 1MB
