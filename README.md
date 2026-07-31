@@ -15,6 +15,10 @@ The following topics currently support deduplication.
 - topic.ProcessedBsm -> topic.DeduplicatedProcessedBsm
 - topic.ProcessedSpat -> topic.DeduplicatedProcessedSpat
 
+Also includes BSM filtering capability on the following topics:
+
+- topic.OdeBsmJson -> topic.WhitelistedOdeBsmJson
+
 ## Topic Deduplication Rules
 
 The processes that determine which messages are duplicates are unique and customized for each message type. The following is a detailed explanation on each message type's criteria for when messages are deduplicated. All of the criteria must be met for a single message type.
@@ -22,10 +26,11 @@ The processes that determine which messages are duplicates are unique and custom
 ### OdeMapJson
 - Two messages within a 1 hour time window 
 - Two messages have the same intersection ID
+- The Messages have the same hash values after remove the `ASN1`, `OdeReceivedAt` and  `MOY` fields
 
 ### ProcessedMap and ProcessedMapWKT
 - Two messages within a 1 hour time window
-- Two messages have the same hash values after factoring out the odeReceivedAt and timeStamp fields
+- Two messages are the same after factoring out the `ASN1`, `odeReceivedAt` and `timeStamp` fields
 
 ### OdeTimJson
 - Two messages within a 1 hour time window
@@ -47,6 +52,108 @@ The processes that determine which messages are duplicates are unique and custom
 - Two messages within 1 minute time window
 - Signal states are identical
 - Signal light phases are identical
+
+## Topic Filtering Rules
+
+### BSM Whitelist
+
+If enabled, groups of BSM IDs can be configured with fixed bytes.
+BSMs with the two least significant bytes of the ID matching the
+configured lists are included.  All other BSMs are filtered out.
+
+## Health Check Endpoints
+
+Endpoints to check the health of the Kafka Streams Topologies are available:
+
+### **`GET {BASE_URL}:8085/health/check`**
+
+Overall health check, returns json such as:
+
+```json
+{
+  "healthy": true,
+  "message": "streams are ok"
+}
+```
+
+### **`GET {BASE_URL}:8085/health/streams`**
+
+Show the status of each topology with a link to details, example:
+
+```json
+{
+  "BsmDeduplicator": {
+    "state": "RUNNING",
+    "detailsUrl": "http://localhost:8085/health/streams/BsmDeduplicator"
+  },
+  "BsmWhitelist": {
+    "state": "RUNNING",
+    "detailsUrl": "http://localhost:8085/health/streams/BsmWhitelist"
+  },
+  "MapDeduplicator": {
+    "state": "RUNNING",
+    "detailsUrl": "http://localhost:8085/health/streams/MapDeduplicator"
+  },
+  "ProcessedBsmDeduplicator": {
+    "state": "RUNNING",
+    "detailsUrl": "http://localhost:8085/health/streams/ProcessedBsmDeduplicator"
+  },
+  "ProcessedMapDeduplicator": {
+    "state": "RUNNING",
+    "detailsUrl": "http://localhost:8085/health/streams/ProcessedMapDeduplicator"
+  },
+  "ProcessedMapWKTDeduplicator": {
+    "state": "RUNNING",
+    "detailsUrl": "http://localhost:8085/health/streams/ProcessedMapWKTDeduplicator"
+  },
+  "ProcessedSpatDeduplicator": {
+    "state": "RUNNING",
+    "detailsUrl": "http://localhost:8085/health/streams/ProcessedSpatDeduplicator"
+  },
+  "TimDeduplicator": {
+    "state": "RUNNING",
+    "detailsUrl": "http://localhost:8085/health/streams/TimDeduplicator"
+  }
+}
+```
+
+### **`GET {BASE_URL}:8085/health/streams/{TOPOLOGY_NAME}`**
+
+Shows detailed metrics on each topology.
+
+For example `/health/streams/BsmDeduplicator` returns (excerpts):
+
+```json
+{
+    "admin-client-metrics": {
+      "connection-close-rate": 0.019621308741293,
+      "connection-close-total": 2,
+      "connection-count": 1,
+      "connection-creation-rate": 0.0196606570591589,
+      "connection-creation-total": 3,
+...
+    "consumer-coordinator-metrics": {
+      "assigned-partitions": 15,
+      "commit-latency-avg": "NaN",
+      "commit-latency-max": "NaN",
+      "commit-rate": 0,
+      "commit-total": 292,
+...
+    "stream-metrics": {
+      "alive-stream-threads": 2,
+      "application-id": "BsmDeduplicator",
+      "commit-id": "8a516edc2755df89",
+      "failed-stream-threads": 0,
+      "state": "RUNNING",
+      "topology-description": 
+...
+    "stream-topic-metrics": {
+      "bytes-consumed-total": 95796,
+      "bytes-produced-total": 32907,
+      "records-consumed-total": 0,
+      "records-produced-total": 0
+      ...etc
+```
 
 ## Release Notes
 
@@ -140,7 +247,86 @@ To manually configure deduplication for a topic, the following environment varia
 | `ENABLE_ODE_TIM_DEDUPLICATION` | `true` / `false` - Enable ODE TIM message Deduplication |
 | `ENABLE_PROCESSED_SPAT_DEDUPLICATION` | `true` / `false` - Enable ProcessedSpat Deduplication |
 | `ENABLE_ODE_BSM_DEDUPLICATION` | `true` / `false` - Enable ODE BSM Deduplication |
-| `ENABLE_PROCESSED_BSM_DEDUPLICATION` | `true` / `false` - Enable Processed BSM Deduplication |
+| `ENABLE_PROCESSED_BSM_DEDUPLICATION` | `true` / `false` - Enable Processed BSM Deduplication | 
+| `ENABLE_BSM_WHITELIST` | `true` / `false` - Enable Filtering BSMs by fixed bytes in ID |
+
+### BSM Whitelist Configuration
+
+To configure the BSM whitelist:
+
+#### 1
+
+Copy the `application.yaml` file, edit the configuration, and deploy the edited file
+in the same directory as the spring boot jar to override the default `application.yaml` in `src/main/resources`.
+Example runtime directory structure:
+
+```
+/home
+    jpo-deduplicator.jar
+    application.yaml
+```
+
+#### 2
+
+Within `application.yaml`, edit the `filters.bsm.whitelist` section:
+
+```yaml
+filters:
+  bsm:
+    whitelist:
+      enabled: ${ENABLE_BSM_WHITELIST:false}
+      input-topic: topic.OdeBsmJson
+      output-dlq-topic: topic.BlacklistedOdeBsmJson
+      output-topic: topic.WhitelistedOdeBsmJson
+      groups:
+        ioo-bus:
+          description: IOO buses
+          id-lsb:
+            - 2001
+            - 2002
+        probe:
+          description: IOO probe vehicles
+          id-lsb:
+            - 4001
+            - 4002
+```
+
+Named groups can be edited as needed.  For example a `plow` group could be added, and the name
+of the `ioo-bus` group could be changed:
+
+```yaml
+filters:
+  bsm:
+    whitelist:
+      enabled: ${ENABLE_BSM_WHITELIST:false}
+      input-topic: topic.OdeBsmJson
+      output-topic: topic.WhitelistedOdeBsmJson
+      groups:
+        city-bus:
+          description: City buses
+          id-lsb:
+            - 0
+            - 1
+        plow:
+          description: DOT Snow plows
+          id-lsb:
+            - 1234
+            - 567
+```
+
+#### 3 Enable env var
+
+Set `ENABLE_BSM_WHITELIST` to true.
+
+#### 4 Configure BSM deduplication topic
+
+Within `application.yaml`, configure the `kafkaTopicOdeBsmJson` topic to point to `topic.WhitelistedOdeBsmJson`
+to deduplicate the whitelisted BSMs.
+
+#### 5 Configure downstream applications
+
+Configure downstream applications, including `jpo-geojsonconverter`, that consume from `topic.OdeBsmJson` to consume 
+`topic.WhitelistedOdeBsmJson` instead.
 
 ### Generate a Github Token
 
