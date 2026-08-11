@@ -26,7 +26,7 @@ import us.dot.its.jpo.ode.model.OdeMessageFrameData;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -54,7 +54,7 @@ public class TimDeduplicatorTopologyTest {
         // Load test files from resources
         // Reference TIM
         String timReference = new String(
-                Files.readAllBytes(Path.of("src/test/resources/json/ode_tim/sample.ode-tim-reference.json")));
+                Files.readAllBytes(Paths.get("src/test/resources/json/ode_tim/sample.ode-tim-reference.json")));
         OdeMessageFrameData timReferenceData = objectMapper.readValue(timReference, OdeMessageFrameData.class);
 
         inputTim1 = timReferenceData.toJson();
@@ -82,7 +82,7 @@ public class TimDeduplicatorTopologyTest {
 
         // A different Message entirely - should be kept
         String timDifferent = new String(
-                Files.readAllBytes(Path.of("src/test/resources/json/ode_tim/sample.ode-tim-different.json")));
+                Files.readAllBytes(Paths.get("src/test/resources/json/ode_tim/sample.ode-tim-different.json")));
         OdeMessageFrameData timDifferentData = objectMapper.readValue(timDifferent, OdeMessageFrameData.class);
         inputTim5 = timDifferentData.toJson();
     }
