@@ -33,7 +33,7 @@
         <sonar.coverage.jacoco.xmReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmReportPaths>
         <sonar.language>java</sonar.language>
         <jpo.ode.version>7.0.0-alpha1</jpo.ode.version>
-        <jpo.geojsonconverter.version>3.3.0</jpo.geojsonconverter.version>
+        <jpo.geojsonconverter.version>4.0.0-alpha1</jpo.geojsonconverter.version>
 
         <!-- Kafka Streams version -->
         <!-- version 3.9+ needed for processing exception handling -->
