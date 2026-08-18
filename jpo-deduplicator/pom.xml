@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.14</version>
+        <version>4.0.7</version>
         <relativePath />
     </parent>
     <groupId>usdot.jpo.ode</groupId>
@@ -27,13 +27,13 @@
         <resource.delimeter>^</resource.delimeter>
 
         <!-- Jacoco/Sonar properties -->
-        <jacoco.version>0.8.11</jacoco.version>
+        <jacoco.version>0.8.15</jacoco.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.coverage.jacoco.xmReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmReportPaths>
         <sonar.language>java</sonar.language>
-        <jpo.ode.version>5.1.0</jpo.ode.version>
-        <jpo.geojsonconverter.version>3.3.0</jpo.geojsonconverter.version>
+        <jpo.ode.version>7.0.0-alpha1</jpo.ode.version>
+        <jpo.geojsonconverter.version>4.0.0-alpha1</jpo.geojsonconverter.version>
 
         <!-- Kafka Streams version -->
         <!-- version 3.9+ needed for processing exception handling -->
@@ -78,7 +78,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.restdocs</groupId>
@@ -129,42 +129,19 @@
                     <artifactId>jpo-ode-plugins</artifactId>
                 </exclusion>
 
-                <!-- Exclude kafka dependencies to allow using newer streams version than geojsonconverter -->
+                <!-- Exclude kafka-streams/kafka-clients so this project's own pinned versions stay
+                     authoritative if they and geojsonconverter's versions ever diverge -->
                 <exclusion>
                     <groupId>org.apache.kafka</groupId>
                     <artifactId>kafka-streams</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-streams-test-utils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
                     <artifactId>kafka-clients</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-server</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-server-common</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka_2.11</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka_2.13</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.springframework.kafka</groupId>
                     <artifactId>spring-kafka</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -185,12 +162,6 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
@@ -203,7 +174,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.10.0</version>
+            <version>5.23.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -292,7 +263,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
                 <configuration>
                     <enableProcessChecker>all</enableProcessChecker>
                     <shutdown>exit</shutdown>
@@ -303,14 +273,6 @@
                         -XX:+EnableDynamicAgentLoading
                     </argLine>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <!-- Force test to use junit4.7 -->
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>3.2.5</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <plugin>

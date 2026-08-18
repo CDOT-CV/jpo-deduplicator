@@ -11,12 +11,11 @@ import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.dot.its.jpo.deduplicator.deduplicator.serialization.JsonSerdes;
@@ -46,10 +45,9 @@ public class TimDeduplicatorTopologyTest {
     String inputTim4 = "";
     String inputTim5 = "";
 
-    @Autowired
     DeduplicatorProperties props;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         objectMapper = DateJsonMapper.getInstance();
 
