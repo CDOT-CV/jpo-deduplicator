@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import us.dot.its.jpo.asn.j2735.r2024.BasicSafetyMessage.BasicSafetyMessageMessageFrame;
 import us.dot.its.jpo.asn.j2735.r2024.Common.BSMcoreData;
@@ -223,6 +225,46 @@ public class BsmDeduplicatorTopologyTest {
             e.printStackTrace();
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testTopologyRetainsCertMetadata() throws IOException {
+        String certMetadataJson = "{\"psid\":32,"
+                + "\"generationTime\":\"2026-11-17T20:59:52.117Z\","
+                + "\"certificateValidityStart\":\"2026-11-17T09:00:05.000Z\","
+                + "\"certificateValidityEnd\":\"2026-11-24T10:00:05.000Z\"}";
+
+        ObjectMapper plainMapper = new ObjectMapper();
+        ObjectNode signedBsm = (ObjectNode) plainMapper.readTree(Files.readAllBytes(
+                Paths.get("src/test/resources/json/ode_bsm/sample.ode-bsm-reference.json")));
+        ((ObjectNode) signedBsm.get("metadata")).set("certMetadata", plainMapper.readTree(certMetadataJson));
+        String inputSignedBsm = plainMapper.writeValueAsString(signedBsm);
+
+        props = new DeduplicatorProperties();
+        props.setAlwaysIncludeAtSpeed(1);
+        props.setenableOdeBsmDeduplication(true);
+        props.setMaximumPositionDelta(1);
+        props.setMaximumTimeDelta(10000);
+        props.setkafkaTopicOdeBsmJson(inputTopic);
+        props.setkafkaTopicDeduplicatedOdeBsmJson(outputTopic);
+
+        Topology topology = new BsmDeduplicatorTopology(props).buildTopology();
+
+        try (TopologyTestDriver driver = new TopologyTestDriver(topology)) {
+            TestInputTopic<Void, String> input = driver.createInputTopic(
+                    inputTopic, Serdes.Void().serializer(), Serdes.String().serializer());
+            TestOutputTopic<String, String> output = driver.createOutputTopic(
+                    outputTopic, Serdes.String().deserializer(), Serdes.String().deserializer());
+
+            input.pipeInput(null, inputSignedBsm);
+
+            List<KeyValue<String, String>> results = output.readKeyValuesToList();
+            assertEquals(1, results.size());
+
+            JsonNode outputCertMetadata = plainMapper.readTree(results.get(0).value)
+                    .path("metadata").path("certMetadata");
+            assertThat(outputCertMetadata.toString(), jsonEquals(certMetadataJson));
         }
     }
 }

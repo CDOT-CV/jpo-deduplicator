@@ -32,7 +32,7 @@
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.language>java</sonar.language>
-        <jpo.ode.version>7.0.0-alpha1</jpo.ode.version>
+        <jpo.ode.version>7.0.0-alpha2</jpo.ode.version>
         <jpo.geojsonconverter.version>4.0.0-alpha1</jpo.geojsonconverter.version>
 
         <!-- Kafka Streams version -->
