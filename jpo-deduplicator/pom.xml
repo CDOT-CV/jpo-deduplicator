@@ -32,17 +32,12 @@
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.language>java</sonar.language>
-        <jpo.ode.version>7.0.0-alpha1</jpo.ode.version>
+        <jpo.ode.version>7.0.0-alpha2</jpo.ode.version>
         <jpo.geojsonconverter.version>4.0.0-alpha1</jpo.geojsonconverter.version>
 
-        <!-- Kafka Streams version -->
-        <!-- version 3.9+ needed for processing exception handling -->
-        <kafka.streams.version>3.9.1</kafka.streams.version>
-
-        <!-- Override default Kafka version for Spring Kafka and tests that use Spring EmbeddedKafka -->
-        <!-- Ref. https://docs.spring.io/spring-kafka/reference/appendix/override-boot-dependencies.html -->
-        <kafka.version>${kafka.streams.version}</kafka.version>
-        <spring-kafka.version>3.3.15</spring-kafka.version>
+        <!-- Kafka, Kafka Streams and Spring Kafka versions are managed by the Spring Boot 4 parent
+             (Kafka 4.x / Spring Kafka 4.x). Kafka Streams 3.9+ is required for processing
+             exception handling. Spring Kafka 4 requires Kafka 4 clients, so do not pin Kafka 3.x. -->
     </properties>
     <dependencies>
         <!-- Spring Boot Dependencies -->
@@ -94,9 +89,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        <!-- Spring Boot 4 moved Kafka auto-configuration (KafkaAdmin, etc.) into this starter -->
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
@@ -153,12 +149,10 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
-            <version>${kafka.streams.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${kafka.streams.version}</version>
         </dependency>
 
         <dependency>

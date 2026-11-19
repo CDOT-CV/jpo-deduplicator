@@ -11,6 +11,8 @@ import us.dot.its.jpo.asn.j2735.r2024.MapData.MapDataMessageFrame;
 import us.dot.its.jpo.deduplicator.DeduplicatorProperties;
 import us.dot.its.jpo.deduplicator.utils.OdeJsonUtils;
 import us.dot.its.jpo.ode.model.OdeMessageFrameData;
+import us.dot.its.jpo.ode.model.OdeMessageFrameMetadata;
+import us.dot.its.jpo.ode.model.SignedDataMetadata;
 
 public class OdeMapJsonProcessor extends DeduplicationProcessor<OdeMessageFrameData> {
 
@@ -51,25 +53,32 @@ public class OdeMapJsonProcessor extends DeduplicationProcessor<OdeMessageFrameD
             MapDataMessageFrame oldMapMessageFrame = (MapDataMessageFrame) lastMessage.getPayload().getData();
             MapDataMessageFrame newMapMessageFrame = (MapDataMessageFrame) newMessage.getPayload().getData();
 
-            long oldMapMoy = oldMapMessageFrame.getValue().getTimeStamp().getValue();
+            OdeMessageFrameMetadata oldMetadata = lastMessage.getMetadata();
+            OdeMessageFrameMetadata newMetadata = newMessage.getMetadata();
+
             long newMapMoy = newMapMessageFrame.getValue().getTimeStamp().getValue();
+            String newMapAsn1 = newMetadata.getAsn1();
+            String newMapOdeReceivedAt = newMetadata.getOdeReceivedAt();
+            // IEEE 1609.2 signature metadata (generation time, certificate validity) changes on every
+            // signed message, so it is not part of the MAP content comparison.
+            SignedDataMetadata newMapCertMetadata = newMetadata.getCertMetadata();
 
-            String oldMapAsn1 = lastMessage.getMetadata().getAsn1();
-            String newMapAsn1 = newMessage.getMetadata().getAsn1();
+            // Temporarily copy fields which are expected to differ between non-perfect duplicates
+            newMapMessageFrame.getValue().getTimeStamp().setValue(oldMapMessageFrame.getValue().getTimeStamp().getValue());
+            newMetadata.setAsn1(oldMetadata.getAsn1());
+            newMetadata.setOdeReceivedAt(oldMetadata.getOdeReceivedAt());
+            newMetadata.setCertMetadata(oldMetadata.getCertMetadata());
 
-            String oldMapOdeReceivedAt = lastMessage.getMetadata().getOdeReceivedAt();
-            String newMapOdeReceivedAt = newMessage.getMetadata().getOdeReceivedAt();
-
-            // Temporarily copy certain fields which are expected to differ between non-perfect duplicates
-            newMapMessageFrame.getValue().getTimeStamp().setValue(oldMapMoy);
-            newMessage.getMetadata().setAsn1(oldMapAsn1);
-            newMessage.getMetadata().setOdeReceivedAt(oldMapOdeReceivedAt);
-
-            if(!lastMessage.toString().equals(newMessage.toString())){
+            try {
+                if (!lastMessage.toString().equals(newMessage.toString())) {
+                    return false;
+                }
+            } finally {
+                // Restore the new message's own values; it is stored and forwarded when not a duplicate
                 newMapMessageFrame.getValue().getTimeStamp().setValue(newMapMoy);
-                newMessage.getMetadata().setAsn1(newMapAsn1);
-                newMessage.getMetadata().setOdeReceivedAt(newMapOdeReceivedAt);
-                return false;
+                newMetadata.setAsn1(newMapAsn1);
+                newMetadata.setOdeReceivedAt(newMapOdeReceivedAt);
+                newMetadata.setCertMetadata(newMapCertMetadata);
             }
 
         } catch (Exception e) {
